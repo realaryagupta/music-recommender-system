@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const collaborativeRecommendationsList = document.getElementById('collaborative-recommendations');
 
     // *** CRITICAL FIX: Changed from 'http://0.0.0.0:8000' to 'http://127.0.0.1:8000' ***
-    const API_BASE_URL = 'http://127.0.0.1:8000'; // Make sure this matches your backend Uvicorn host/port
+    const API_BASE_URL = 'https://music-recommender-system-t2lx.onrender.com'; // Make sure this matches your backend Uvicorn host/port
 
     // Function to validate inputs and enable/disable button
     function validateInputs() {
