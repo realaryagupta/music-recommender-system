@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Recommender</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #1db954, #1ed760);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #1db954;
+            transform: translateY(-2px);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .slider-container {
+            margin-top: 10px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1db954;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1db954;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 600;
+            color: #1db954;
+        }
+
+        .recommend-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #1db954, #1ed760);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .recommend-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(29, 185, 84, 0.4);
+        }
+
+        .recommend-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 400px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #1db954;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .query-info {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(29, 185, 84, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid #1db954;
+        }
+
+        .query-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .query-info p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .song-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .song-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .song-header {
+            margin-bottom: 15px;
+        }
+
+        .song-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #1db954;
+        }
+
+        .song-artist {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .song-metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .metadata-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metadata-label {
+            display: block;
+            font-weight: 600;
+            opacity: 0.7;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metadata-value {
+            display: block;
+            margin-top: 2px;
+        }
+
+        .audio-player {
+            margin-top: 15px;
+        }
+
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .no-preview {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            opacity: 0.6;
+        }
+
+        .placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .tags {
+            margin-top: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(29, 185, 84, 0.2);
+            color: #1db954;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+            border: 1px solid rgba(29, 185, 84, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .control-panel, .results-section {
+                padding: 20px;
+            }
+            
+            .song-metadata {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .song-metadata {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Song Recommender</h1>
+            <p>Discover your next favorite song based on your taste</p>
+        </div>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="songName">Song Name</label>
+                    <input type="text" id="songName" placeholder="Enter song name..." />
+                </div>
+
+                <div class="form-group">
+                    <label for="artistName">Artist Name</label>
+                    <input type="text" id="artistName" placeholder="Enter artist name..." />
+                </div>
+
+                <div class="form-group">
+                    <label for="recommendationCount">Number of Recommendations</label>
+                    <div class="slider-container">
+                        <input type="range" id="recommendationCount" min="1" max="20" value="10" />
+                        <div class="slider-value" id="countValue">10</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contentWeight">Content-Based Weight</label>
+                    <div class="slider-container">
+                        <input type="range" id="contentWeight" min="0" max="1" step="0.1" value="0.5" />
+                        <div class="slider-value" id="weightValue">0.5</div>
+                    </div>
+                </div>
+
+                <button class="recommend-btn" id="recommendBtn" disabled>
+                    Get Recommendations
+                </button>
+            </div>
+
+            <div class="results-section">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Finding your perfect recommendations...</p>
+                </div>
+
+                <div class="placeholder" id="placeholder">
+                    <div class="placeholder-icon">🎶</div>
+                    <h3>Ready to discover new music?</h3>
+                    <p>Enter a song and artist to get personalized recommendations</p>
+                </div>
+
+                <div id="results" style="display: none;">
+                    <div class="query-info" id="queryInfo"></div>
+                    <div class="recommendations-grid" id="recommendationsGrid"></div>
+                </div>
+
+                <div class="error-message" id="errorMessage" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const songNameInput = document.getElementById('songName');
+        const artistNameInput = document.getElementById('artistName');
+        const recommendationCountSlider = document.getElementById('recommendationCount');
+        const contentWeightSlider = document.getElementById('contentWeight');
+        const recommendBtn = document.getElementById('recommendBtn');
+        const countValue = document.getElementById('countValue');
+        const weightValue = document.getElementById('weightValue');
+        const loading = document.getElementById('loading');
+        const placeholder = document.getElementById('placeholder');
+        const results = document.getElementById('results');
+        const errorMessage = document.getElementById('errorMessage');
+        const queryInfo = document.getElementById('queryInfo');
+        const recommendationsGrid = document.getElementById('recommendationsGrid');
+
+        // Update slider values
+        recommendationCountSlider.addEventListener('input', (e) => {
+            countValue.textContent = e.target.value;
+        });
+
+        contentWeightSlider.addEventListener('input', (e) => {
+            weightValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        // Enable/disable recommend button based on input validation
+        function validateInputs() {
+            const songName = songNameInput.value.trim();
+            const artistName = artistNameInput.value.trim();
+            recommendBtn.disabled = !songName || !artistName;
+        }
+
+        songNameInput.addEventListener('input', validateInputs);
+        artistNameInput.addEventListener('input', validateInputs);
+
+        // Handle form submission with Enter key
+        [songNameInput, artistNameInput].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !recommendBtn.disabled) {
+                    getRecommendations();
+                }
+            });
+        });
+
+        // Main recommendation function
+        async function getRecommendations() {
+            const songName = songNameInput.value.trim();
+            const artistName = artistNameInput.value.trim();
+            const recommendationCount = parseInt(recommendationCountSlider.value);
+            const contentBasedWeight = parseFloat(contentWeightSlider.value);
+
+            if (!songName || !artistName) return;
+
+            // Show loading state
+            showLoading();
+
+            try {
+                const response = await fetch('http://localhost:8000/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        song_name: songName,
+                        artist_name: artistName,
+                        recommendation_count: recommendationCount,
+                        content_based_weight: contentBasedWeight
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'An error occurred while fetching recommendations');
+                }
+
+                displayRecommendations(data);
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            }
+        }
+
+        function showLoading() {
+            loading.style.display = 'block';
+            placeholder.style.display = 'none';
+            results.style.display = 'none';
+            errorMessage.style.display = 'none';
+        }
+
+        function showError(message) {
+            loading.style.display = 'none';
+            placeholder.style.display = 'none';
+            results.style.display = 'none';
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = message;
+        }
+
+        function displayRecommendations(data) {
+            loading.style.display = 'none';
+            placeholder.style.display = 'none';
+            errorMessage.style.display = 'none';
+            results.style.display = 'block';
+
+            // Display query info
+            queryInfo.innerHTML = `
+                <h3>Recommendations for</h3>
+                <p><strong>${data.query_song}</strong> by <strong>${data.query_artist}</strong></p>
+            `;
+
+            // Clear previous recommendations
+            recommendationsGrid.innerHTML = '';
+
+            // Display recommendations
+            data.recommendations.forEach((song, index) => {
+                const songCard = createSongCard(song, index + 1);
+                recommendationsGrid.appendChild(songCard);
+            });
+        }
+
+        function createSongCard(song, index) {
+            const card = document.createElement('div');
+            card.className = 'song-card';
+
+            const duration = song.duration_ms ? formatDuration(song.duration_ms) : 'N/A';
+            const year = song.year || 'N/A';
+            const album = song.album || 'N/A';
+
+            let audioSection = '';
+            if (song.spotify_preview_url) {
+                audioSection = `
+                    <div class="audio-player">
+                        <audio controls preload="none">
+                            <source src="${song.spotify_preview_url}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                `;
+            } else {
+                audioSection = `
+                    <div class="no-preview">
+                        🎵 No preview available
+                    </div>
+                `;
+            }
+
+            let tagsSection = '';
+            if (song.tags) {
+                const tags = song.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+                if (tags.length > 0) {
+                    tagsSection = `
+                        <div class="tags">
+                            ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    `;
+                }
+            }
+
+            card.innerHTML = `
+                <div class="song-header">
+                    <div class="song-title">${index}. ${song.name}</div>
+                    <div class="song-artist">by ${song.artist}</div>
+                </div>
+                
+                <div class="song-metadata">
+                    <div class="metadata-item">
+                        <span class="metadata-label">Year</span>
+                        <span class="metadata-value">${year}</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Duration</span>
+                        <span class="metadata-value">${duration}</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Album</span>
+                        <span class="metadata-value">${album}</span>
+                    </div>
+                </div>
+
+                ${audioSection}
+                ${tagsSection}
+            `;
+
+            return card;
+        }
+
+        function formatDuration(durationMs) {
+            const seconds = Math.floor(durationMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // Event listener for recommend button
+        recommendBtn.addEventListener('click', getRecommendations);
+
+        // Initialize
+        validateInputs();
+    </script>
+</body>
+</html>

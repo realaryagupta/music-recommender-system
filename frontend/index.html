@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Recommender</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-music"></i>
+                    <h1>Song Recommender</h1>
+                </div>
+                <p class="tagline">Discover new music tailored to your taste</p>
+                <div class="header-decoration">
+                    <div class="music-note"><i class="fas fa-music"></i></div>
+                    <div class="music-note"><i class="fas fa-headphones"></i></div>
+                    <div class="music-note"><i class="fas fa-compact-disc"></i></div>
+                </div>
+            </div>
+        </header>
+
+        <section class="input-section">
+            <div class="form-card">
+                <div class="form-header">
+                    <h3><i class="fas fa-search"></i> Find Your Perfect Song</h3>
+                </div>
+                <div class="form-content">
+                    <div class="input-group">
+                        <label for="songName"><i class="fas fa-music"></i> Song Title</label>
+                        <input type="text" id="songName" placeholder="e.g., Love Story" autocomplete="off">
+                        <div class="input-underline"></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="artistName"><i class="fas fa-microphone"></i> Artist Name</label>
+                        <input type="text" id="artistName" placeholder="e.g., Taylor Swift" autocomplete="off">
+                        <div class="input-underline"></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="numRecommendations"><i class="fas fa-list-ol"></i> Number of Recommendations</label>
+                        <select id="numRecommendations">
+                            <option value="5">5 Recommendations</option>
+                            <option value="10">10 Recommendations</option>
+                            <option value="15">15 Recommendations</option>
+                            <option value="20">20 Recommendations</option>
+                        </select>
+                    </div>
+                    <button id="recommendBtn" class="recommend-btn" disabled>
+                        <span class="btn-text">Get Recommendations</span>
+                        <span class="btn-loader"><i class="fas fa-spinner fa-spin"></i></span>
+                        <i class="fas fa-arrow-right btn-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="messageContainer" class="message-container"></div>
+        </section>
+
+        <section id="suggestionsSection" class="suggestions-section" style="display: none;">
+            <div class="suggestions-card">
+                <div class="suggestions-header">
+                    <h2><i class="fas fa-lightbulb"></i> Did you mean:</h2>
+                </div>
+                <ul id="suggestionsList" class="suggestions-list">
+                </ul>
+            </div>
+        </section>
+
+        <section id="resultsSection" class="results-section" style="display: none;">
+            <div class="results-header">
+                <h2><i class="fas fa-star"></i> Your Recommendations</h2>
+                <p class="results-subtitle">Powered by advanced AI algorithms</p>
+            </div>
+            
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab-button active" onclick="openTab('hybrid')">
+                        <i class="fas fa-magic"></i>
+                        <span>Hybrid</span>
+                        <div class="tab-indicator"></div>
+                    </button>
+                    <button class="tab-button" onclick="openTab('content-based')">
+                        <i class="fas fa-tags"></i>
+                        <span>Content-Based</span>
+                        <div class="tab-indicator"></div>
+                    </button>
+                    <button class="tab-button" onclick="openTab('collaborative')">
+                        <i class="fas fa-users"></i>
+                        <span>Collaborative</span>
+                        <div class="tab-indicator"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="tab-content">
+                <div id="hybrid" class="tab-pane active">
+                    <div class="recommendations-grid">
+                        <ul id="hybrid-recommendations" class="recommendation-list"></ul>
+                    </div>
+                </div>
+                <div id="content-based" class="tab-pane">
+                    <div class="recommendations-grid">
+                        <ul id="content-based-recommendations" class="recommendation-list"></ul>
+                    </div>
+                </div>
+                <div id="collaborative" class="tab-pane">
+                    <div class="recommendations-grid">
+                        <ul id="collaborative-recommendations" class="recommendation-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Song Recommender. Discover music that moves you.</p>
+        </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
