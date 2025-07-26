@@ -142,7 +142,7 @@ First, clone the project repository to your local machine. Ensure you have Git L
 git lfs install
 
 # Clone the repository
-git clone https://github.com/[Your_GitHub_Username]/musiccccc.git # Replace with your actual repo URL
+git clone https://github.com/realaryagupta/musiccccc.git 
 cd musiccccc
 ```
 
